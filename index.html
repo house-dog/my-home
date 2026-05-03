@@ -86,7 +86,6 @@ async function main() {
 
     const profile = await liff.getProfile();
     const userId = profile.userId;
-    alert("現在のLINE IDは: " + profile.userId);
     document.getElementById('user-name').innerText = `${profile.displayName} 様、こんにちは！`;
 
     // Firebaseからデータ取得
