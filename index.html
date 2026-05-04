@@ -18,7 +18,7 @@
         .info-row:last-child { border-bottom: none; }
         .label { color: #666; font-size: 0.9rem; }
         .value { font-weight: 500; color: #333; text-align: right; }
-        .app-item {background: #ffffff;border: 1px solid #e0f2f1;border-radius: 12px;padding: 15px;margin-bottom: 12px;box-shadow: inset 0 0 0 1px #e0f7fa; /* 爽やかな内枠線 */line-height: 1.5;}
+        .app-item {background: #f0faff;border: 1px solid #caf0f8;border-radius: 12px;padding: 15px;margin-bottom: 12px;line-height: 1.5;}
         #loading { text-align: center; padding-top: 50px; color: #0077b6; }
         summary { display: block; padding: 15px; cursor: pointer; outline: none; list-style: none; }
         summary::-webkit-details-marker { display: none; }
@@ -218,18 +218,16 @@ function showData(data) {
         
         list.innerHTML = data.homeAppHistory.map(item => `
             <div class="app-item">
-                <b style="font-size: 1.1rem;">${item.product} (${item.maker || '-'})</b>
-                <div style="margin-top: 5px; color: #666; font-size: 0.9rem;">
-                    型番: ${item.model || '-'}<br>
-                    設置日: ${item.installDate || '-'}
+                <b style="font-size: 1.1rem; color: #333;">${item.product} (${item.maker || '-'})</b>
+                <div style="margin-top: 5px; color: #666; font-size: 0.85rem;">
+                    型番: ${item.model || '-'} / 設置日: ${item.installDate || '-'}
                 </div>
-                <div style="margin-top: 5px; color: #0077b6; font-weight: bold;">
+                <div style="margin-top: 5px; color: #0077b6; font-weight: bold; font-size: 0.9rem;">
                     延長保証: ${item.warranty || '-'}
                 </div>
             </div>
         `).join('');
     }
-}
 
 main();
 </script>
