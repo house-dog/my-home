@@ -20,14 +20,22 @@
         .value { font-weight: 500; color: #333; text-align: right; }
         .app-item { background: #f9feff; border: 1px solid #caf0f8; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.9rem; }
         #loading { text-align: center; padding-top: 50px; color: #0077b6; }
-       /* アコーディオン全体の枠（家電履歴の枠に合わせる） */
-        details { background: #f9feff;border: 1px solid #caf0f8;border-radius: 12px;margin-bottom: 12px;outline: none;transition: background 0.3s;}
-        details[open] {background: #fff;
-        summary {padding: 15px;cursor: pointer;list-style: none;outline: none;}summary::-webkit-details-marker {display: none;}.summary-inner {display: flex;justify-content: space-between;align-items: center;}
-        .summary-title-set { display: flex;flex-direction: column;gap: 2px;}
-        .summary-date {font-size: 0.75rem;color: #888;font-family: 'Courier New', Courier, monospace;}
-        .summary-text {font-weight: bold;color: #0077b6;font-size: 1rem;}
-        .history-content { padding: 0 15px 15px 15px;font-size: 0.9rem;line-height: 1.7;color: #444;white-space: pre-wrap;border-top: 1px dashed #caf0f8;margin-top: 5px;padding-top: 15px;}
+
+        /* メンテナンス履歴専用スタイル */
+        details { background: #f9feff; border: 1px solid #caf0f8; border-radius: 12px; margin-bottom: 12px; outline: none; transition: background 0.3s; list-style: none; }
+        details[open] { background: #fff; }
+        
+        /* 元々の黒い三角矢印を消す（Safari/Chrome両方） */
+        summary { display: block; padding: 15px; cursor: pointer; outline: none; list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+
+        .summary-inner { display: flex; justify-content: space-between; align-items: center; }
+        .summary-title-set { display: flex; flex-direction: column; gap: 2px; }
+        .summary-date { font-size: 0.75rem; color: #888; font-family: 'Courier New', Courier, monospace; }
+        .summary-text { font-weight: bold; color: #0077b6; font-size: 1rem; }
+        
+        .history-content { padding: 0 15px 15px 15px; font-size: 0.9rem; line-height: 1.7; color: #444; white-space: pre-wrap; border-top: 1px dashed #caf0f8; margin-top: 5px; padding-top: 15px; }
+        .history-memo { margin-top: 8px; padding: 8px; background: #f0f8ff; border-radius: 4px; font-size: 0.85em; color: #666; }
     </style>
 </head>
 <body>
@@ -40,14 +48,12 @@
         <p id="user-name">読み込み中...</p>
     </div>
 
-    <!-- 1. 基本設備 -->
     <div class="card" id="card-basic">
         <div class="card-title"><i class="fas fa-faucet"></i> 設備設置状況</div>
         <div class="info-row"><span class="label">UFB設置日</span><span class="value" id="ufb-date">-</span></div>
         <div class="info-row"><span class="label">お掃除最終実施日</span><span class="value" id="clean-date">-</span></div>
     </div>
 
-    <!-- 2. エネルギー設備 -->
     <div class="card" id="card-solar" style="border-left-color: #48cae4;">
         <div class="card-title"><i class="fas fa-sun"></i> 太陽光・蓄電池</div>
         <div class="info-row"><span class="label">太陽光パネル</span><span class="value" id="solar-info">-</span></div>
@@ -55,40 +61,34 @@
         <div class="info-row"><span class="label">蓄電池</span><span class="value" id="battery-info">-</span></div>
     </div>
 
-    <!-- 3. 給湯器 -->
     <div class="card" id="card-kyutoki" style="border-left-color: #90e0ef;">
         <div class="card-title"><i class="fas fa-hot-tub"></i> 給湯器情報</div>
         <div id="kyutoki-content"></div>
     </div>
 
-    <!-- 4. 家電購入履歴 -->
     <div class="card" id="card-apps" style="border-left-color: #0096c7;">
         <div class="card-title"><i class="fas fa-shopping-cart"></i> 家電購入履歴</div>
         <div id="app-history"></div>
     </div>
-</div>
-    
-    <!-- 家電購入履歴の下あたりに追加 -->
+
     <div class="card" id="card-history" style="border-left-color: #00b4d8; display: none;">
         <div class="card-title"><i class="fas fa-history"></i> メンテナンス履歴</div>
         <div id="history-list"></div>
+    </div>
 </div>
 
 <script>
-// --- 設定情報 ---
-// --- 設定情報 ---
 const firebaseConfig = {
-  apiKey: "AIzaSyBT-mS9I2WEp5N1zbuz3zbuL6I79K6Amx0",
-  authDomain: "house-dog.firebaseapp.com",
-  databaseURL: "https://house-dog-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "house-dog",
-  storageBucket: "house-dog.firebasestorage.app",
-  messagingSenderId: "273035019029",
-  appId: "1:273035019029:web:d207593957151568a39f1c"
+    apiKey: "AIzaSyBT-mS9I2WEp5N1zbuz3zbuL6I79K6Amx0",
+    authDomain: "house-dog.firebaseapp.com",
+    databaseURL: "https://house-dog-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "house-dog",
+    storageBucket: "house-dog.firebasestorage.app",
+    messagingSenderId: "273035019029",
+    appId: "1:273035019029:web:d207593957151568a39f1c"
 };
 const LIFF_ID = "1657824671-i9hMmXZT"; 
 
-// --- 初期化 ---
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
@@ -103,8 +103,6 @@ async function main() {
     const userId = profile.userId;
     document.getElementById('user-name').innerText = `${profile.displayName} 様、こんにちは！`;
 
-    // --- 1. メンテナンス履歴を取得 ---
-    // --- 1. メンテナンス履歴を取得 ---
     database.ref('maintenance_history/' + userId).once('value', (histSnapshot) => {
         const histData = histSnapshot.val();
         const historyCard = document.getElementById('card-history');
@@ -117,29 +115,25 @@ async function main() {
             const sortedHist = Object.values(histData).reverse();
             sortedHist.forEach(item => {
                 const details = document.createElement('details');
-                
-                // 内容を改行で分割し、1行目をタイトルにする
                 const lines = item.content.split(/\r?\n/);
-                const titleText = lines[0]; // 1行目
-                const detailText = lines.slice(1).join('\n'); // 2行目以降
+                const titleText = lines[0];
+                const detailText = lines.slice(1).join('\n');
                 
-                // タイトル部分：日付 + 内容の1行目
-                // --- メンテナンス履歴のループ内（summary部分のみ差し替え） ---
                 const summary = document.createElement('summary');
                 summary.innerHTML = `
-                <div class="summary-inner"><div class="summary-title-set">
-                <span class="summary-date">${item.date}</span>
-                <span class="summary-text">${titleText}</span>
-                </div>
-                <i class="fas fa-chevron-down" style="color: #00b4d8; opacity: 0.7;"></i>
-                </div>
+                    <div class="summary-inner">
+                        <div class="summary-title-set">
+                            <span class="summary-date">${item.date}</span>
+                            <span class="summary-text">${titleText}</span>
+                        </div>
+                        <i class="fas fa-chevron-down" style="color: #00b4d8; opacity: 0.7;"></i>
+                    </div>
                 `;
                 
-                // 中身部分：2行目以降を表示（もし1行しかなければタイトルのみ）
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'history-content';
                 contentDiv.innerHTML = `
-                    <div style="${detailText ? 'margin-top:10px; border-top:1px solid #eee; padding-top:10px;' : ''}">${detailText || '詳細は1行目に記載'}</div>
+                    <div>${detailText || '詳細は1行目に記載されています'}</div>
                     ${item.memo ? `<div class="history-memo">備考: ${item.memo}</div>` : ''}
                 `;
                 
@@ -150,28 +144,19 @@ async function main() {
         }
     });
 
-    // --- 2. 設備マスターから基本情報を取得 ---
     database.ref('equipment_master/' + userId).once('value', (snapshot) => {
         const data = snapshot.val();
         document.getElementById('loading').style.display = 'none';
-
-        if (!data) {
-            document.getElementById('user-name').innerText = "データが見つかりませんでした。";
-            return;
-        }
-
-        // 表示処理を実行
+        if (!data) return;
         showData(data);
     });
 }
 
 function showData(data) {
-    // UFB・掃除
     document.getElementById('card-basic').style.display = 'block';
     document.getElementById('ufb-date').innerText = data.ufb || "-";
     document.getElementById('clean-date').innerText = data.lastCleaning || "-";
 
-    // 太陽光
     if (data.solar || data.battery) {
         document.getElementById('card-solar').style.display = 'block';
         document.getElementById('solar-info').innerText = data.solar || "-";
@@ -179,17 +164,15 @@ function showData(data) {
         document.getElementById('battery-info').innerText = data.battery || "-";
     }
 
-    // 給湯器
     if (data.kyutoki) {
         document.getElementById('card-kyutoki').style.display = 'block';
         document.getElementById('kyutoki-content').innerHTML = `<div class="info-row"><span class="value" style="text-align:left;">${data.kyutoki}</span></div>`;
     }
 
-    // 家電履歴
     if (data.homeAppHistory && data.homeAppHistory.length > 0) {
         document.getElementById('card-apps').style.display = 'block';
         const appList = document.getElementById('app-history');
-        appList.innerHTML = ""; // 重複防止
+        appList.innerHTML = "";
         data.homeAppHistory.forEach(item => {
             const div = document.createElement('div');
             div.className = 'app-item';
