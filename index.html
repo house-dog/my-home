@@ -20,6 +20,10 @@
         .value { font-weight: 500; color: #333; text-align: right; }
         .app-item { background: #f9feff; border: 1px solid #caf0f8; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.9rem; }
         #loading { text-align: center; padding-top: 50px; color: #0077b6; }
+        details {background: #f9feff;border: 1px solid #caf0f8;border-radius: 8px;margin-bottom: 10px;border-left: 3px solid #00b4d8;overflow: hidden;}
+        summary {padding: 10px 12px;cursor: pointer;font-weight: bold;color: #0077b6;outline: none;display: flex;justify-content: space-between;align-items: center;line-height: 1.2; }
+        .history-content {padding: 0 12px 12px 12px;font-size: 0.9rem;line-height: 1.6;color: #333;white-space: pre-wrap;}
+        .history-memo {margin-top: 8px;padding: 8px;background: #f0f8ff;border-radius: 4px;font-size: 0.85em;color: #666;}
     </style>
 </head>
 <body>
@@ -96,29 +100,46 @@ async function main() {
     document.getElementById('user-name').innerText = `${profile.displayName} 様、こんにちは！`;
 
     // --- 1. メンテナンス履歴を取得 ---
+    // --- 1. メンテナンス履歴を取得 ---
     database.ref('maintenance_history/' + userId).once('value', (histSnapshot) => {
         const histData = histSnapshot.val();
         const historyCard = document.getElementById('card-history');
         const historyList = document.getElementById('history-list');
         
         if (histData) {
-            // 履歴データがある場合、カードを表示
             historyCard.style.display = 'block';
-            historyList.innerHTML = ""; // 初期化
+            historyList.innerHTML = "";
             
-            // 履歴を新しい順（逆順）に並べて表示
             const sortedHist = Object.values(histData).reverse();
             sortedHist.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'app-item'; // デザインを家電履歴と統一
-                div.style.borderLeft = "3px solid #00b4d8";
-                div.style.marginBottom = "10px";
-                div.innerHTML = `
-                    <strong style="color: #0077b6;">${item.date}</strong><br>
-                    <div style="margin-top: 5px; font-weight: 500;">${item.content}</div>
-                    ${item.memo ? `<div style="font-size: 0.85em; color: #666; margin-top: 3px; background: #f0f8ff; padding: 5px; border-radius: 4px;">備考: ${item.memo}</div>` : ''}
+                const details = document.createElement('details');
+                
+                // 内容を改行で分割し、1行目をタイトルにする
+                const lines = item.content.split(/\r?\n/);
+                const titleText = lines[0]; // 1行目
+                const detailText = lines.slice(1).join('\n'); // 2行目以降
+                
+                // タイトル部分：日付 + 内容の1行目
+                const summary = document.createElement('summary');
+                summary.innerHTML = `
+                    <div style="display:flex; flex-direction:column;">
+                        <small style="font-size:0.7em; color:#888;">${item.date}</small>
+                        <span>${titleText}</span>
+                    </div>
+                    <i class="fas fa-chevron-down" style="font-size:0.8em; opacity:0.5;"></i>
                 `;
-                historyList.appendChild(div);
+                
+                // 中身部分：2行目以降を表示（もし1行しかなければタイトルのみ）
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'history-content';
+                contentDiv.innerHTML = `
+                    <div style="${detailText ? 'margin-top:10px; border-top:1px solid #eee; padding-top:10px;' : ''}">${detailText || '詳細は1行目に記載'}</div>
+                    ${item.memo ? `<div class="history-memo">備考: ${item.memo}</div>` : ''}
+                `;
+                
+                details.appendChild(summary);
+                details.appendChild(contentDiv);
+                historyList.appendChild(details);
             });
         }
     });
