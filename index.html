@@ -33,7 +33,7 @@
         .summary-title-set { display: flex; flex-direction: column; gap: 2px; }
         .summary-date {font-size: 0.9rem;color: #333;font-weight: 500;}
         .summary-text {font-weight: bold;color: #0077b6;font-size: 1rem;}
-        .history-content {padding: 10px 15px 15px 15px;font-size: 0.9rem;line-height: 1.5;color: #444;white-space: pre-wrap;border-top: 1px dashed #e0f2f1;margin-top: 0;}
+        .history-content {padding: 8px 15px 12px 15px;font-size: 0.9rem;line-height: 1.4;color: #444;white-space: pre-wrap;border-top: 1px dashed #e0f2f1;margin-top: -5px;padding-top: 8px;}
         .history-memo {margin-top: 5px;padding: 6px 10px;background: #f0f8ff;border-radius: 4px;font-size: 0.8em;}
     </style>
 </head>
@@ -50,7 +50,6 @@
     <div class="card" id="card-basic">
         <div class="card-title"><i class="fas fa-faucet"></i> 設備設置状況</div>
         <div class="info-row"><span class="label">UFB設置日</span><span class="value" id="ufb-date">-</span></div>
-        <div class="info-row"><span class="label">お掃除最終実施日</span><span class="value" id="clean-date">-</span></div>
     </div>
 
     <div class="card" id="card-solar" style="border-left-color: #48cae4;">
@@ -155,7 +154,6 @@ async function main() {
 function showData(data) {
     document.getElementById('card-basic').style.display = 'block';
     document.getElementById('ufb-date').innerText = data.ufb || "-";
-    document.getElementById('clean-date').innerText = data.lastCleaning || "-";
 
     if (data.solar || data.battery) {
         document.getElementById('card-solar').style.display = 'block';
