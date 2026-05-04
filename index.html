@@ -31,11 +31,10 @@
 
         .summary-inner { display: flex; justify-content: space-between; align-items: center; }
         .summary-title-set { display: flex; flex-direction: column; gap: 2px; }
-        .summary-date { font-size: 0.75rem; color: #888; font-family: 'Courier New', Courier, monospace; }
-        .summary-text { font-weight: bold; color: #0077b6; font-size: 1rem; }
-        
-        .history-content { padding: 0 15px 15px 15px; font-size: 0.9rem; line-height: 1.7; color: #444; white-space: pre-wrap; border-top: 1px dashed #caf0f8; margin-top: 5px; padding-top: 15px; }
-        .history-memo { margin-top: 8px; padding: 8px; background: #f0f8ff; border-radius: 4px; font-size: 0.85em; color: #666; }
+        .summary-date {font-size: 0.9rem;color: #333;font-weight: 500;}
+        .summary-text {font-weight: bold;color: #0077b6;font-size: 1rem;}
+        .history-content {padding: 10px 15px 15px 15px;font-size: 0.9rem;line-height: 1.5;color: #444;white-space: pre-wrap;border-top: 1px dashed #e0f2f1;margin-top: 0;}
+        .history-memo {margin-top: 5px;padding: 6px 10px;background: #f0f8ff;border-radius: 4px;font-size: 0.8em;}
     </style>
 </head>
 <body>
@@ -121,13 +120,14 @@ async function main() {
                 
                 const summary = document.createElement('summary');
                 summary.innerHTML = `
-                    <div class="summary-inner">
-                        <div class="summary-title-set">
-                            <span class="summary-date">${item.date}</span>
-                            <span class="summary-text">${titleText}</span>
-                        </div>
-                        <i class="fas fa-chevron-down" style="color: #00b4d8; opacity: 0.7;"></i>
-                    </div>
+                <div class="summary-inner"><div class="summary-title-set" style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-right: 10px;">
+                <span class="summary-date">${item.date}</span>
+                <i class="fas fa-chevron-down" style="color: #00b4d8; font-size: 0.8rem;"></i>
+                </div>
+                <div class="summary-text" style="margin-top: 4px;">${titleText}</div>
+                </div>
+                </div>
                 `;
                 
                 const contentDiv = document.createElement('div');
