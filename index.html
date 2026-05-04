@@ -156,31 +156,39 @@ function loadHistory(userId) {
     });
 }
 
-function handleLink() {
+ffunction handleLink() {
     const inputTel = document.getElementById('input-id').value.trim();
     const errorEl = document.getElementById('link-error');
+    const GAS_URL = "ここにコピーしたウェブアプリURLを貼り付け"; 
+
     if (!inputTel) { errorEl.innerText = "電話番号を入力してください。"; return; }
 
     errorEl.innerText = "連携処理中...";
+
     liff.getProfile().then(profile => {
-        if (typeof google !== 'undefined' && google.script) {
-            google.script.run
-                .withSuccessHandler((res) => {
-                    if (res.success) {
-                        alert("連携に成功しました！");
-                        location.reload();
-                    } else {
-                        errorEl.innerText = res.message;
-                    }
-                })
-                .withFailureHandler(() => { errorEl.innerText = "システムエラーが発生しました。"; })
-                .linkUserAccount(inputTel, profile.userId);
-        } else {
-            errorEl.innerText = "GASとの通信ができません。デプロイを確認してください。";
-        }
+        // fetchを使ってGASのAPIにデータを送る
+        fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                phoneNumber: inputTel,
+                lineUid: profile.userId
+            })
+        })
+        .then(response => response.json())
+        .then(res => {
+            if (res.success) {
+                alert("連携に成功しました！");
+                location.reload();
+            } else {
+                errorEl.innerText = res.message;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            errorEl.innerText = "通信エラーが発生しました。";
+        });
     });
 }
-
 function showData(data) {
     document.getElementById('card-basic').style.display = 'block';
     document.getElementById('ufb-date').innerText = data.ufb || "-";
