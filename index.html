@@ -20,25 +20,17 @@
         .value { font-weight: 500; color: #333; text-align: right; }
         .app-item { background: #f9feff; border: 1px solid #caf0f8; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.9rem; }
         #loading { text-align: center; padding-top: 50px; color: #0077b6; }
-
-        /* メンテナンス履歴専用スタイル */
-        details { background: #f9feff; border: 1px solid #caf0f8; border-radius: 12px; margin-bottom: 12px; outline: none; transition: background 0.3s; list-style: none; }
-        details[open] { background: #fff; }
-        
-        /* 元々の黒い三角矢印を消す（Safari/Chrome両方） */
         summary { display: block; padding: 15px; cursor: pointer; outline: none; list-style: none; }
         summary::-webkit-details-marker { display: none; }
-
+        details { background: #f9feff; border: 1px solid #caf0f8; border-radius: 12px; margin-bottom: 12px; outline: none; }
         .summary-inner { display: flex; justify-content: space-between; align-items: center; }
-        .summary-title-set { display: flex; flex-direction: column; gap: 2px; }
-        .summary-date {font-size: 0.9rem;color: #333;font-weight: 500;}
-        .summary-text {font-weight: bold;color: #0077b6;font-size: 1rem;}
-        .history-content {padding: 8px 15px 12px 15px;font-size: 0.9rem;line-height: 1.4;color: #444;white-space: pre-wrap;border-top: 1px dashed #e0f2f1;margin-top: -5px;padding-top: 8px;}
-        .history-memo {margin-top: 5px;padding: 6px 10px;background: #f0f8ff;border-radius: 4px;font-size: 0.8em;}
+        .summary-text { font-weight: bold; color: #0077b6; font-size: 1rem; }
+        .history-content { padding: 8px 15px 12px 15px; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; border-top: 1px dashed #e0f2f1; }
     </style>
 </head>
 <body>
 
+<!-- 読み込み中は1つだけにします -->
 <div id="loading"><i class="fas fa-spinner fa-spin"></i> 読み込み中...</div>
 
 <div id="main-content">
@@ -47,56 +39,49 @@
         <p id="user-name">読み込み中...</p>
     </div>
 
-    <!-- ↓読み込み中のすぐ下に追加 -->
-<div id="loading"><i class="fas fa-spinner fa-spin"></i> 読み込み中...</div>
-
-<!-- ★追加：連携フォーム -->
-<div id="link-form" style="display: none; padding: 20px; text-align: center;">
-    <div class="card" style="border-left-color: #ff9f1c; display: block;">
-        <div class="card-title"><i class="fas fa-link"></i> お客様情報の連携</div>
-        <p style="font-size: 0.9rem; color: #666; text-align: left;">
-            お客様情報が見つかりません。ご登録いただいている「電話番号（本人またはご家族）」を入力してください。
-        </p>
-        <input type="tel" id="input-id" placeholder="例：09012345678" 
-               style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem;">
-        <button onclick="handleLink()" 
-                style="width: 100%; padding: 12px; background: #00b4d8; color: white; border: none; border-radius: 8px; font-weight: bold;">
-            連携する
-        </button>
-        <p id="link-error" style="color: #e63946; font-size: 0.8rem; margin-top: 10px;"></p>
+    <!-- 連携フォーム -->
+    <div id="link-form" style="display: none; padding: 20px; text-align: center;">
+        <div class="card" style="border-left-color: #ff9f1c; display: block;">
+            <div class="card-title"><i class="fas fa-link"></i> お客様情報の連携</div>
+            <p style="font-size: 0.9rem; color: #666; text-align: left;">
+                お客様情報が見つかりません。ご登録いただいている「電話番号（本人またはご家族）」を入力してください。
+            </p>
+            <input type="tel" id="input-id" placeholder="例：09012345678" 
+                   style="width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem;">
+            <button onclick="handleLink()" 
+                    style="width: 100%; padding: 12px; background: #00b4d8; color: white; border: none; border-radius: 8px; font-weight: bold;">
+                連携する
+            </button>
+            <p id="link-error" style="color: #e63946; font-size: 0.8rem; margin-top: 10px;"></p>
+        </div>
     </div>
-</div>
 
+    <!-- 各種カード（初期は非表示） -->
     <div class="card" id="card-basic">
         <div class="card-title"><i class="fas fa-faucet"></i> 設備設置状況</div>
         <div class="info-row"><span class="label">UFB DUAL設置日</span><span class="value" id="ufb-date">-</span></div>
     </div>
-
     <div class="card" id="card-solar" style="border-left-color: #48cae4;">
         <div class="card-title"><i class="fas fa-sun"></i> 太陽光・蓄電池</div>
         <div class="info-row"><span class="label">太陽光パネル</span><span class="value" id="solar-info">-</span></div>
         <div class="info-row"><span class="label">設置日</span><span class="value" id="solar-date">-</span></div>
         <div class="info-row"><span class="label">蓄電池</span><span class="value" id="battery-info">-</span></div>
     </div>
-
     <div class="card" id="card-kyutoki" style="border-left-color: #90e0ef;">
         <div class="card-title"><i class="fas fa-hot-tub"></i> 給湯器情報</div>
         <div id="kyutoki-content"></div>
     </div>
-
     <div class="card" id="card-apps" style="border-left-color: #0096c7;">
         <div class="card-title"><i class="fas fa-shopping-cart"></i> 家電購入履歴</div>
         <div id="app-history"></div>
     </div>
-
-    <div class="card" id="card-history" style="border-left-color: #00b4d8; display: none;">
+    <div class="card" id="card-history" style="border-left-color: #00b4d8;">
         <div class="card-title"><i class="fas fa-history"></i> メンテナンス履歴</div>
         <div id="history-list"></div>
     </div>
 </div>
 
 <script>
-// --- 設定 (変更なし) ---
 const firebaseConfig = {
     apiKey: "AIzaSyBT-mS9I2WEp5N1zbuz3zbuL6I79K6Amx0",
     authDomain: "house-dog.firebaseapp.com",
@@ -111,128 +96,108 @@ const LIFF_ID = "1657824671-i9hMmXZT";
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// --- 1. メイン処理（書き換え箇所） ---
 async function main() {
-    await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
-    }
-
-    const profile = await liff.getProfile();
-    const userId = profile.userId;
-    document.getElementById('user-name').innerText = `${profile.displayName} 様、こんにちは！`;
-
-    // メンテナンス履歴の取得
-    database.ref('maintenance_history/' + userId).once('value', (histSnapshot) => {
-        const histData = histSnapshot.val();
-        const historyCard = document.getElementById('card-history');
-        const historyList = document.getElementById('history-list');
-        
-        if (histData) {
-            historyCard.style.display = 'block';
-            historyList.innerHTML = "";
-            const sortedHist = Object.values(histData).reverse();
-            sortedHist.forEach(item => {
-                // ...履歴の表示ロジック (既存のまま) ...
-                const details = document.createElement('details');
-                const lines = item.content.split(/\r?\n/);
-                const titleText = lines[0];
-                const detailText = lines.slice(1).join('\n');
-                const summary = document.createElement('summary');
-                summary.innerHTML = `
-                <div class="summary-inner"><div class="summary-title-set" style="flex: 1;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-right: 10px;">
-                <span class="summary-date">${item.date}</span>
-                <i class="fas fa-chevron-down" style="color: #00b4d8; font-size: 0.8rem;"></i>
-                </div>
-                <div class="summary-text" style="margin-top: 4px;">${titleText}</div>
-                </div></div>`;
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'history-content';
-                contentDiv.innerHTML = `<div>${detailText || '詳細は1行目に記載されています'}</div>${item.memo ? `<div class="history-memo">備考: ${item.memo}</div>` : ''}`;
-                details.appendChild(summary);
-                details.appendChild(contentDiv);
-                historyList.appendChild(details);
-            });
-        }
-    });
-
-    // 設備データの取得
-    database.ref('equipment_master/' + userId).once('value', (snapshot) => {
-        const data = snapshot.val();
-        document.getElementById('loading').style.display = 'none';
-        
-        if (!data) {
-            // ★重要：データがない場合は連携フォームを表示
-            document.getElementById('link-form').style.display = 'block';
+    try {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) {
+            liff.login();
             return;
         }
-        showData(data);
+
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+        document.getElementById('user-name').innerText = `${profile.displayName} 様、こんにちは！`;
+
+        // 設備データの確認
+        database.ref('equipment_master/' + userId).once('value', (snapshot) => {
+            document.getElementById('loading').style.display = 'none';
+            const data = snapshot.val();
+            
+            if (!data) {
+                document.getElementById('link-form').style.display = 'block';
+            } else {
+                showData(data);
+                // データがある場合のみ履歴を取得
+                loadHistory(userId);
+            }
+        }, (error) => {
+            console.error(error);
+            document.getElementById('loading').innerText = "通信エラーが発生しました。";
+        });
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('loading').innerText = "初期化に失敗しました。";
+    }
+}
+
+function loadHistory(userId) {
+    database.ref('maintenance_history/' + userId).once('value', (snapshot) => {
+        const histData = snapshot.val();
+        if (!histData) return;
+        
+        const historyCard = document.getElementById('card-history');
+        const historyList = document.getElementById('history-list');
+        historyCard.style.display = 'block';
+        historyList.innerHTML = "";
+        
+        Object.values(histData).reverse().forEach(item => {
+            const details = document.createElement('details');
+            const lines = item.content.split(/\r?\n/);
+            const summary = document.createElement('summary');
+            summary.innerHTML = `<div class="summary-inner"><div><span style="font-size:0.8rem;">${item.date}</span><br><span class="summary-text">${lines[0]}</span></div><i class="fas fa-chevron-down"></i></div>`;
+            const content = document.createElement('div');
+            content.className = 'history-content';
+            content.innerHTML = `<div>${lines.slice(1).join('<br>')}</div>`;
+            details.appendChild(summary);
+            details.appendChild(content);
+            historyList.appendChild(details);
+        });
     });
 }
 
-// --- 2. 連携ボタンの処理（追加箇所） ---
 function handleLink() {
     const inputTel = document.getElementById('input-id').value.trim();
     const errorEl = document.getElementById('link-error');
-    
-    if (!inputTel) {
-        errorEl.innerText = "電話番号を入力してください。";
-        return;
-    }
+    if (!inputTel) { errorEl.innerText = "電話番号を入力してください。"; return; }
 
     errorEl.innerText = "連携処理中...";
-
     liff.getProfile().then(profile => {
-        // GAS側の linkUserAccount 関数を呼び出す
-        google.script.run
-            .withSuccessHandler((res) => {
-                if (res.success) {
-                    alert("連携に成功しました！");
-                    location.reload(); // 画面を更新
-                } else {
-                    errorEl.innerText = res.message;
-                }
-            })
-            .withFailureHandler((err) => {
-                errorEl.innerText = "通信エラーが発生しました。";
-            })
-            .linkUserAccount(inputTel, profile.userId);
+        if (typeof google !== 'undefined' && google.script) {
+            google.script.run
+                .withSuccessHandler((res) => {
+                    if (res.success) {
+                        alert("連携に成功しました！");
+                        location.reload();
+                    } else {
+                        errorEl.innerText = res.message;
+                    }
+                })
+                .withFailureHandler(() => { errorEl.innerText = "システムエラーが発生しました。"; })
+                .linkUserAccount(inputTel, profile.userId);
+        } else {
+            errorEl.innerText = "GASとの通信ができません。デプロイを確認してください。";
+        }
     });
 }
 
-// --- 3. 表示処理 (既存のまま) ---
 function showData(data) {
     document.getElementById('card-basic').style.display = 'block';
     document.getElementById('ufb-date').innerText = data.ufb || "-";
-
     if (data.solar || data.battery) {
         document.getElementById('card-solar').style.display = 'block';
         document.getElementById('solar-info').innerText = data.solar || "-";
         document.getElementById('solar-date').innerText = data.solarDate || "-";
         document.getElementById('battery-info').innerText = data.battery || "-";
     }
-
     if (data.kyutoki) {
         document.getElementById('card-kyutoki').style.display = 'block';
-        document.getElementById('kyutoki-content').innerHTML = `<div class="info-row"><span class="value" style="text-align:left;">${data.kyutoki}</span></div>`;
+        document.getElementById('kyutoki-content').innerHTML = `<div class="info-row">${data.kyutoki}</div>`;
     }
-
-    if (data.homeAppHistory && data.homeAppHistory.length > 0) {
+    if (data.homeAppHistory) {
         document.getElementById('card-apps').style.display = 'block';
-        const appList = document.getElementById('app-history');
-        appList.innerHTML = "";
-        data.homeAppHistory.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'app-item';
-            div.innerHTML = `
-                <div style="font-weight: bold; color: #333; font-size: 1rem;">${item.product} (${item.maker})</div>
-                <div style="font-size: 0.85rem; color: #666; margin-top: 4px;">型番: ${item.model} / 設置日: ${item.installDate}</div>
-                <div style="font-size: 0.85rem; color: #0077b6; font-weight: bold; margin-top: 4px;">延長保証: ${item.warranty}</div>
-            `;
-            appList.appendChild(div);
-        });
+        const list = document.getElementById('app-history');
+        list.innerHTML = data.homeAppHistory.map(item => `<div class="app-item"><b>${item.product}</b><br>${item.model}</div>`).join('');
     }
 }
 
