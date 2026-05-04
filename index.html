@@ -59,8 +59,15 @@
         <div id="app-history"></div>
     </div>
 </div>
+    
+    <!-- 家電購入履歴の下あたりに追加 -->
+    <div class="card" id="card-history" style="border-left-color: #00b4d8; display: none;">
+        <div class="card-title"><i class="fas fa-history"></i> メンテナンス履歴</div>
+        <div id="history-list"></div>
+</div>
 
 <script>
+// --- 設定情報 ---
 // --- 設定情報 ---
 const firebaseConfig = {
   apiKey: "AIzaSyBT-mS9I2WEp5N1zbuz3zbuL6I79K6Amx0",
@@ -88,7 +95,35 @@ async function main() {
     const userId = profile.userId;
     document.getElementById('user-name').innerText = `${profile.displayName} 様、こんにちは！`;
 
-    // Firebaseからデータ取得
+    // --- 1. メンテナンス履歴を取得 ---
+    database.ref('maintenance_history/' + userId).once('value', (histSnapshot) => {
+        const histData = histSnapshot.val();
+        const historyCard = document.getElementById('card-history');
+        const historyList = document.getElementById('history-list');
+        
+        if (histData) {
+            // 履歴データがある場合、カードを表示
+            historyCard.style.display = 'block';
+            historyList.innerHTML = ""; // 初期化
+            
+            // 履歴を新しい順（逆順）に並べて表示
+            const sortedHist = Object.values(histData).reverse();
+            sortedHist.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'app-item'; // デザインを家電履歴と統一
+                div.style.borderLeft = "3px solid #00b4d8";
+                div.style.marginBottom = "10px";
+                div.innerHTML = `
+                    <strong style="color: #0077b6;">${item.date}</strong><br>
+                    <div style="margin-top: 5px; font-weight: 500;">${item.content}</div>
+                    ${item.memo ? `<div style="font-size: 0.85em; color: #666; margin-top: 3px; background: #f0f8ff; padding: 5px; border-radius: 4px;">備考: ${item.memo}</div>` : ''}
+                `;
+                historyList.appendChild(div);
+            });
+        }
+    });
+
+    // --- 2. 設備マスターから基本情報を取得 ---
     database.ref('equipment_master/' + userId).once('value', (snapshot) => {
         const data = snapshot.val();
         document.getElementById('loading').style.display = 'none';
@@ -98,7 +133,7 @@ async function main() {
             return;
         }
 
-        // 表示処理
+        // 表示処理を実行
         showData(data);
     });
 }
@@ -120,13 +155,14 @@ function showData(data) {
     // 給湯器
     if (data.kyutoki) {
         document.getElementById('card-kyutoki').style.display = 'block';
-        document.getElementById('kyutoki-content').innerHTML = `<div class="info-row"><span class="value">${data.kyutoki}</span></div>`;
+        document.getElementById('kyutoki-content').innerHTML = `<div class="info-row"><span class="value" style="text-align:left;">${data.kyutoki}</span></div>`;
     }
 
     // 家電履歴
     if (data.homeAppHistory && data.homeAppHistory.length > 0) {
         document.getElementById('card-apps').style.display = 'block';
         const appList = document.getElementById('app-history');
+        appList.innerHTML = ""; // 重複防止
         data.homeAppHistory.forEach(item => {
             const div = document.createElement('div');
             div.className = 'app-item';
