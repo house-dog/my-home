@@ -170,13 +170,29 @@ function showData(data) {
     if (data.homeAppHistory && data.homeAppHistory.length > 0) {
         document.getElementById('card-apps').style.display = 'block';
         const appList = document.getElementById('app-history');
-        appList.innerHTML = "";
+        appList.innerHTML = ""; // 一旦クリア
+
+        // 全件ループしてカードを作る
         data.homeAppHistory.forEach(item => {
             const div = document.createElement('div');
             div.className = 'app-item';
-            div.innerHTML = `<strong>${item.product} (${item.maker})</strong><br>
-                             <small>型番: ${item.model} / 設置: ${item.installDate}</small><br>
-                             <span style="color: #0077b6;">延長保証: ${item.warranty}</span>`;
+            div.style.marginBottom = "10px";
+            div.style.padding = "12px";
+            div.style.border = "1px solid #caf0f8";
+            div.style.borderRadius = "8px";
+            div.style.background = "#f9feff";
+            
+            div.innerHTML = `
+                <div style="font-weight: bold; color: #333; font-size: 1rem;">
+                    ${item.product} (${item.maker})
+                </div>
+                <div style="font-size: 0.85rem; color: #666; margin-top: 4px;">
+                    型番: ${item.model} / 設置日: ${item.installDate}
+                </div>
+                <div style="font-size: 0.85rem; color: #0077b6; font-weight: bold; margin-top: 4px;">
+                    延長保証: ${item.warranty}
+                </div>
+            `;
             appList.appendChild(div);
         });
     }
