@@ -18,7 +18,7 @@
         .info-row:last-child { border-bottom: none; }
         .label { color: #666; font-size: 0.9rem; }
         .value { font-weight: 500; color: #333; text-align: right; }
-        .app-item { background: #f9feff; border: 1px solid #caf0f8; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.9rem; }
+        .app-item {background: #ffffff;border: 1px solid #e0f2f1;border-radius: 12px;padding: 15px;margin-bottom: 12px;box-shadow: inset 0 0 0 1px #e0f7fa; /* 爽やかな内枠線 */line-height: 1.5;}
         #loading { text-align: center; padding-top: 50px; color: #0077b6; }
         summary { display: block; padding: 15px; cursor: pointer; outline: none; list-style: none; }
         summary::-webkit-details-marker { display: none; }
@@ -198,20 +198,36 @@ function handleLink() { // ← fを1つ削りました
 function showData(data) {
     document.getElementById('card-basic').style.display = 'block';
     document.getElementById('ufb-date').innerText = data.ufb || "-";
+    
     if (data.solar || data.battery) {
         document.getElementById('card-solar').style.display = 'block';
         document.getElementById('solar-info').innerText = data.solar || "-";
         document.getElementById('solar-date').innerText = data.solarDate || "-";
         document.getElementById('battery-info').innerText = data.battery || "-";
     }
+    
     if (data.kyutoki) {
         document.getElementById('card-kyutoki').style.display = 'block';
-        document.getElementById('kyutoki-content').innerHTML = `<div class="info-row">${data.kyutoki}</div>`;
+        document.getElementById('kyutoki-content').innerHTML = `<div class="info-row" style="justify-content: flex-start;">${data.kyutoki}</div>`;
     }
+
+    // 家電購入履歴の修正
     if (data.homeAppHistory) {
         document.getElementById('card-apps').style.display = 'block';
         const list = document.getElementById('app-history');
-        list.innerHTML = data.homeAppHistory.map(item => `<div class="app-item"><b>${item.product}</b><br>${item.model}</div>`).join('');
+        
+        list.innerHTML = data.homeAppHistory.map(item => `
+            <div class="app-item">
+                <b style="font-size: 1.1rem;">${item.product} (${item.maker || '-'})</b>
+                <div style="margin-top: 5px; color: #666; font-size: 0.9rem;">
+                    型番: ${item.model || '-'}<br>
+                    設置日: ${item.installDate || '-'}
+                </div>
+                <div style="margin-top: 5px; color: #0077b6; font-weight: bold;">
+                    延長保証: ${item.warranty || '-'}
+                </div>
+            </div>
+        `).join('');
     }
 }
 
