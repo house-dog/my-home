@@ -20,10 +20,14 @@
         .value { font-weight: 500; color: #333; text-align: right; }
         .app-item { background: #f9feff; border: 1px solid #caf0f8; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.9rem; }
         #loading { text-align: center; padding-top: 50px; color: #0077b6; }
-        details {background: #f9feff;border: 1px solid #caf0f8;border-radius: 8px;margin-bottom: 10px;border-left: 3px solid #00b4d8;overflow: hidden;}
-        summary {padding: 10px 12px;cursor: pointer;font-weight: bold;color: #0077b6;outline: none;display: flex;justify-content: space-between;align-items: center;line-height: 1.2; }
-        .history-content {padding: 0 12px 12px 12px;font-size: 0.9rem;line-height: 1.6;color: #333;white-space: pre-wrap;}
-        .history-memo {margin-top: 8px;padding: 8px;background: #f0f8ff;border-radius: 4px;font-size: 0.85em;color: #666;}
+       /* アコーディオン全体の枠（家電履歴の枠に合わせる） */
+        details { background: #f9feff;border: 1px solid #caf0f8;border-radius: 12px;margin-bottom: 12px;outline: none;transition: background 0.3s;}
+        details[open] {background: #fff;
+        summary {padding: 15px;cursor: pointer;list-style: none;outline: none;}summary::-webkit-details-marker {display: none;}.summary-inner {display: flex;justify-content: space-between;align-items: center;}
+        .summary-title-set { display: flex;flex-direction: column;gap: 2px;}
+        .summary-date {font-size: 0.75rem;color: #888;font-family: 'Courier New', Courier, monospace;}
+        .summary-text {font-weight: bold;color: #0077b6;font-size: 1rem;}
+        .history-content { padding: 0 15px 15px 15px;font-size: 0.9rem;line-height: 1.7;color: #444;white-space: pre-wrap;border-top: 1px dashed #caf0f8;margin-top: 5px;padding-top: 15px;}
     </style>
 </head>
 <body>
@@ -120,13 +124,15 @@ async function main() {
                 const detailText = lines.slice(1).join('\n'); // 2行目以降
                 
                 // タイトル部分：日付 + 内容の1行目
+                // --- メンテナンス履歴のループ内（summary部分のみ差し替え） ---
                 const summary = document.createElement('summary');
                 summary.innerHTML = `
-                    <div style="display:flex; flex-direction:column;">
-                        <small style="font-size:0.7em; color:#888;">${item.date}</small>
-                        <span>${titleText}</span>
-                    </div>
-                    <i class="fas fa-chevron-down" style="font-size:0.8em; opacity:0.5;"></i>
+                <div class="summary-inner"><div class="summary-title-set">
+                <span class="summary-date">${item.date}</span>
+                <span class="summary-text">${titleText}</span>
+                </div>
+                <i class="fas fa-chevron-down" style="color: #00b4d8; opacity: 0.7;"></i>
+                </div>
                 `;
                 
                 // 中身部分：2行目以降を表示（もし1行しかなければタイトルのみ）
